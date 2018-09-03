@@ -6,13 +6,14 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
+using SJKP.Azure.WebJobs.Extensions.ACI;
 
 namespace ACIFunctionBinding
 {
-    public static class Function1
+    public static class Delete
     {
-        [FunctionName("Function1")]
-        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log)
+        [FunctionName("Delete")]
+        public static IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]HttpRequest req, TraceWriter log, [DeleteContainerGroupAttribute()]out ContainerGroupDelete groupDelete)
         {
             log.Info("C# HTTP trigger function processed a request.");
 
@@ -21,6 +22,11 @@ namespace ACIFunctionBinding
             string requestBody = new StreamReader(req.Body).ReadToEnd();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
+
+            groupDelete = new ContainerGroupDelete()
+            {
+                GroupName = "sjkptest"
+            };
 
             return name != null
                 ? (ActionResult)new OkObjectResult($"Hello, {name}")
